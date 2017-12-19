@@ -67,51 +67,57 @@ public class DataLoader {
 	public void loadDocuments(String inputFileName, HashMap<String, Document> docs, HashSet<String> stopwords, HashMap<String, Double> DF, Porter porter,
 			boolean removeDuplicates) throws Exception {
 		File inputFile = new File(inputFileName);
-		StringDuplicate sd = new StringDuplicate();
-		if (inputFile.isDirectory()) {
-			int i = 0;
-			for (String file : inputFile.list())
-				try {
-					file = inputFileName + "/" + file;
-					if (i++ % 1000 == 0)
-						System.out.println(i + " documnets are loaded.");
-					String id = file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."));
-					Document d = docs.containsKey(id) ? docs.get(id) : new Document(id);
-					// d.setTitle(line.split(",")[0]);
-					if (file.endsWith(".keywords"))
-						loadDocumentKeyFile(openDataInputStream(file), stopwords, porter, d, constants.KEYWORDS_1_WEIGHT);
-					else
+		if (!inputFile.exists()) {
+			// WARNING - nothing is going to load!
+			System.err.println("WARNING: No file or directory found at " + inputFile.getAbsolutePath());
+		}
+		else {
+			StringDuplicate sd = new StringDuplicate();
+			if (inputFile.isDirectory()) {
+				int i = 0;
+				for (String file : inputFile.list())
+					try {
+						file = inputFileName + "/" + file;
+						if (i++ % 1000 == 0)
+							System.out.println(i + " documents are loaded.");
+						String id = file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."));
+						Document d = docs.containsKey(id) ? docs.get(id) : new Document(id);
+						// d.setTitle(line.split(",")[0]);
+						if (file.endsWith(".keywords"))
+							loadDocumentKeyFile(openDataInputStream(file), stopwords, porter, d, constants.KEYWORDS_1_WEIGHT);
+						else
+							// if (file.endsWith(".txt"))
+							loadDocumentTextFile(openDataInputStream(file), stopwords, porter, d, constants.TEXT_WEIGHT, removeDuplicates, sd);
+						docs.put(id, d);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+			} else {
+				BufferedReader in = new BufferedReader(new FileReader(inputFile));
+				String line = null;
+				int i = 0;
+				while ((line = in.readLine()) != null)
+					try {
+						String[] tokens = line.split("\t", 2);
+						if (i++ % 1000 == 0)
+							System.out.println(i + " documents are loaded.");
+						String id = tokens[0];
+						// id = i + "";
+						Document d = docs.containsKey(id) ? docs.get(id) : new Document(id);
+						// d.setTitle(line.split(",")[0]);
+						// if (file.endsWith(".keywords"))
+						// loadDocumentKeyFile(openDataInputStream(file), stopwords,
+						// porter, d, constants.KEYWORDS_1_WEIGHT);
 						// if (file.endsWith(".txt"))
-						loadDocumentTextFile(openDataInputStream(file), stopwords, porter, d, constants.TEXT_WEIGHT, removeDuplicates, sd);
-					docs.put(id, d);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-		} else {
-			BufferedReader in = new BufferedReader(new FileReader(inputFile));
-			String line = null;
-			int i = 0;
-			while ((line = in.readLine()) != null)
-				try {
-					String[] tokens = line.split("\t", 2);
-					if (i++ % 1000 == 0)
-						System.out.println(i + " documnets are loaded.");
-					String id = tokens[0];
-					// id = i + "";
-					Document d = docs.containsKey(id) ? docs.get(id) : new Document(id);
-					// d.setTitle(line.split(",")[0]);
-					// if (file.endsWith(".keywords"))
-					// loadDocumentKeyFile(openDataInputStream(file), stopwords,
-					// porter, d, constants.KEYWORDS_1_WEIGHT);
-					// if (file.endsWith(".txt"))
-					loadDocumentTextFile(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(tokens[1].getBytes("UTF-8")))), stopwords, porter, d,
-							constants.TEXT_WEIGHT, removeDuplicates, sd);
+						loadDocumentTextFile(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(tokens[1].getBytes("UTF-8")))), stopwords, porter, d,
+								constants.TEXT_WEIGHT, removeDuplicates, sd);
 
-					docs.put(id, d);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			in.close();
+						docs.put(id, d);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				in.close();
+			}
 		}
 
 		System.out.println(docs.size() + " documents are loaded.");
