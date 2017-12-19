@@ -1,22 +1,18 @@
 package topicDetection;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class Constants {
 
-	public Constants()throws Exception{
-		load(new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("TDTConstants.txt"))));
-	}
-
 	public Constants(String constantsFile) throws Exception {
-		load(new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(constantsFile))));
+		load(new BufferedReader(new FileReader(constantsFile)));
 	}
 
-	public Constants(BufferedReader constantsFile) throws Exception {
-		load(constantsFile);
+	public Constants(BufferedReader constantsReader) throws Exception {
+		load(constantsReader);
 	}
 
 	// -- default values ---

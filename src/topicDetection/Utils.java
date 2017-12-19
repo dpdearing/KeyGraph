@@ -1,7 +1,7 @@
 package topicDetection;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -20,7 +20,7 @@ public class Utils {
 	public static HashSet<String> importStopwords() {
 		HashSet<String> stopwords = new HashSet<String>();
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(Utils.class.getClassLoader().getResourceAsStream("stopword.txt")));
+			BufferedReader in = new BufferedReader(new FileReader("stopword.txt"));
 			String line = null;
 			while ((line = in.readLine()) != null)
 				stopwords.add(line.trim().toLowerCase());
